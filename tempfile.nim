@@ -1,5 +1,7 @@
 ## This module contains basic procs for
 ## creating temporary files and directories
+##
+## This module is impressed by Python's `tempfile` module
 
 import os
 import math
@@ -13,7 +15,7 @@ const
 
 randomize()
 proc mktemp*(prefix = "tmp", suffix = "", dir = "", len = 8): string {.deprecated.} =
-  ## Returns a unique temporart file name. The file is not created
+  ## Returns a unique temporary file name. The file is not created.
   let charset {.global.} = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
   var name = newString(len)
   for x in 0..MAX_RETRIES:
