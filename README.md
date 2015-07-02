@@ -1,6 +1,8 @@
 # tempfile.nim
 This module contains basic procs for creating temporary files and directories
 
+This module is impressed by Python's tempfile module
+
 Installation
 ============
 ```
