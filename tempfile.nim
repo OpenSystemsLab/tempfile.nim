@@ -61,7 +61,7 @@ proc mkdtemp*(prefix = "tmp", suffix = "", dir = ""): string =
       when defined(windows):
         createDirectoryW(path)
       else:
-        discard mkdir(path, 0700)
+        discard mkdir(path, 0o700)
       return path
     except:
       discard
