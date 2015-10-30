@@ -5,10 +5,6 @@
 
 import os
 import math
-when defined(windows):
-  import winlean
-else:
-  import posix
 
 const
   MAX_RETRIES = 9999
@@ -58,10 +54,7 @@ proc mkdtemp*(prefix = "tmp", suffix = "", dir = ""): string =
   for x in 0..MAX_RETRIES:
     path = mktemp(prefix, suffix, dir)
     try:
-      when defined(windows):
-        discard createDirectoryW(newWideCString(path))
-      else:
-        discard mkdir(path, 0o700)
+      createDir(path)
       return path
     except:
       discard
