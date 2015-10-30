@@ -59,7 +59,7 @@ proc mkdtemp*(prefix = "tmp", suffix = "", dir = ""): string =
     path = mktemp(prefix, suffix, dir)
     try:
       when defined(windows):
-        createDirectoryW(path)
+        discard createDirectoryW(newWideCString(path))
       else:
         discard mkdir(path, 0o700)
       return path
