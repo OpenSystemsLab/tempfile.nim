@@ -12,21 +12,22 @@ else:
 
 const
   MAX_RETRIES = 9999
+  CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 randomize()
 proc mktemp*(prefix = "tmp", suffix = "", dir = "", len = 8): string {.deprecated.} =
   ## Returns a unique temporary file name. The file is not created.
-  let charset {.global.} = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
   var name = newString(len)
   for x in 0..MAX_RETRIES:
     for i in 0..len-1:
-      name[i] = charset[random(charset.len-1)]
+      name[i] = CHARSET[random(CHARSET.len-1)]
 
     if dir == "":
       result = getTempDir().joinPath(prefix & name & suffix)
     else:
       result = dir.joinPath(prefix & name & suffix)
-      
+
     if not result.existsFile:
       return result
   raise newException(IOError, "Unable to find an available temporary file")
@@ -48,11 +49,11 @@ proc mkstemp*(prefix = "tmp", suffix = "", dir = "", mode = fmRead): tuple[fd: F
     except IOError:
       #echo getCurrentExceptionMsg()
       if name.existsFile:
-        name.removeFile      
-      
+        name.removeFile
+
   raise newException(IOError, "Unable to create temporary file")
 
-proc mkdtemp*(prefix = "tmp", suffix = "", dir = ""): string = 
+proc mkdtemp*(prefix = "tmp", suffix = "", dir = ""): string =
   ## Returns value is the pathname of the directory.
   var path: string
   for x in 0..MAX_RETRIES:
@@ -66,9 +67,9 @@ proc mkdtemp*(prefix = "tmp", suffix = "", dir = ""): string =
     except:
       discard
   raise newException(IOError, "Unable to create temporary directory")
-      
+
 when isMainModule:
-  var (file, name) = mkstemp()  
+  var (file, name) = mkstemp()
   echo name, " ", getFileInfo(file).id
   assert name.existsFile
   assert getFileHandle(file) != -1
@@ -79,4 +80,3 @@ when isMainModule:
   echo dir
   assert dir.existsDir()
   dir.removeDir
-  
