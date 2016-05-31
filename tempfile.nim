@@ -6,6 +6,10 @@
 import os
 import math
 
+# Since random number generator was moved to separate module:
+when not compiles(randomize()):
+  import random
+
 const
   MAX_RETRIES = 9999
   CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
