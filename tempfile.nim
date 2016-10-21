@@ -59,8 +59,10 @@ proc mkdtemp*(prefix = "tmp", suffix = "", dir = ""): string =
   for x in 0..MAX_RETRIES:
     path = mktemp(prefix, suffix, dir)
     try:
-      createDir(path)
-      return path
+      # A bit racy, but better than nothing
+      if not path.existsDir:
+        createDir(path)
+        return path
     except:
       discard
   raise newException(IOError, "Unable to create temporary directory")
