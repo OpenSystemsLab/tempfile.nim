@@ -59,13 +59,20 @@ proc mkdtemp*(prefix = "tmp", suffix = "", dir = ""): string =
   for x in 0..MAX_RETRIES:
     path = mktemp(prefix, suffix, dir)
     try:
-      # A bit racy, but better than nothing
-      if not path.existsDir:
-        createDir(path)
-        # In Nim 0.15.2 and older `createDir` didn't fail if `path`
-        # did already exist, but was not a directory.
-        if path.existsDir:
+      when declared(existsOrCreateDir):
+        # Nim 0.15.3 or later
+        createDir(path.parentDir)
+        if not existsOrCreateDir(path):
           return path
+      else:
+        # Nim 0.15.2 or older (for compatibility)
+        # A bit racy, but better than nothing
+        if not path.existsDir:
+          createDir(path)
+          # Before 0.15.3 `createDir` didn't fail if `path` did
+          # already exist, but was not a directory.
+          if path.existsDir:
+            return path
     except:
       discard
   raise newException(IOError, "Unable to create temporary directory")
