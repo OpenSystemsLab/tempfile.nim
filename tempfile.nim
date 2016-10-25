@@ -62,7 +62,10 @@ proc mkdtemp*(prefix = "tmp", suffix = "", dir = ""): string =
       # A bit racy, but better than nothing
       if not path.existsDir:
         createDir(path)
-        return path
+        # In Nim 0.15.2 and older `createDir` didn't fail if `path`
+        # did already exist, but was not a directory.
+        if path.existsDir:
+          return path
     except:
       discard
   raise newException(IOError, "Unable to create temporary directory")
