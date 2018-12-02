@@ -3,14 +3,13 @@
 ##
 ## This module is impressed by Python's `tempfile` module
 
-import os, math, random
+import os, math, random, strutils
 
 const
   MAX_RETRIES = 9999
   CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 randomize()
-
 
 proc getTempDir(): string =
   when defined(tempDir):
@@ -42,21 +41,26 @@ proc getTempDir(): string =
           return result
   raise newException(IOError, "unable to find temp directory")
 
-
 proc mktempUnsafe*(prefix = "tmp", suffix = "", dir = "", len = 8): string =
   ## Returns a unique temporary file name. The file is not created.
-
+  when nimvm:
+    var seed = initRand(staticExec("date +'%N'").parseint)
+  else:
+    discard
   var name = newString(len)
   for x in 0..MAX_RETRIES:
     for i in 0..len-1:
-      name[i] = CHARSET[random(CHARSET.len-1)]
+      when nimvm:
+        name[i] = CHARSET[rand(seed, CHARSET.len-1)]
+      else:
+        name[i] = CHARSET[rand(CHARSET.len-1)]
 
     if dir == "":
       result = getTempDir().joinPath(prefix & name & suffix)
     else:
       result = dir.joinPath(prefix & name & suffix)
 
-    if not result.existsFile:
+    if not result.fileExists:
       return result
   raise newException(IOError, "Unable to find an available temporary file")
 
@@ -76,7 +80,7 @@ proc mkstemp*(prefix = "tmp", suffix = "", dir = "", mode = fmRead): tuple[fd: F
       return (file, name)
     except IOError:
       #echo getCurrentExceptionMsg()
-      if name.existsFile:
+      if name.fileExists:
         name.removeFile
 
   raise newException(IOError, "Unable to create temporary file")
@@ -108,7 +112,7 @@ proc mkdtemp*(prefix = "tmp", suffix = "", dir = ""): string =
 when isMainModule:
   var (file, name) = mkstemp()
   echo name, " ", getFileInfo(file).id
-  assert name.existsFile
+  assert name.fileExists
   assert getFileHandle(file) != -1
   file.close()
   name.removeFile
@@ -117,3 +121,8 @@ when isMainModule:
   echo dir
   assert dir.existsDir()
   dir.removeDir
+
+  proc ct(): string {.compileTime.} =
+    echo mktempUnsafe()
+  var a = ct()
+
