@@ -43,17 +43,15 @@ proc getTempDir(): string =
 
 proc mktempUnsafe*(prefix = "tmp", suffix = "", dir = "", len = 8): string =
   ## Returns a unique temporary file name. The file is not created.
-  when nimvm:
-    when defined(windows):
-      var seed = initRand(31157)
-    else:
-      var seed = initRand(staticExec("date +'%N'").parseint)
-  else:
-    discard
   var name = newString(len)
   for x in 0..MAX_RETRIES:
     for i in 0..len-1:
       when nimvm:
+        var seed: Rand
+        try:
+          seed = initRand(staticExec("tempfile_seeder").parseint)
+        except:
+          raise newException(IOError, "Cannot find seeder for compile time, make sure you have nimble's bin dir to your $PATH")
         name[i] = CHARSET[rand(seed, CHARSET.len-1)]
       else:
         name[i] = CHARSET[rand(CHARSET.len-1)]

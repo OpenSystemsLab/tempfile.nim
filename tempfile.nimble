@@ -1,9 +1,12 @@
-[Package]
-name          = "tempfile"
-version       = "0.1.6"
+# Package
+
+version       = "0.1.7"
 author        = "Huy Doan"
 description   = "Temporary files and folders"
 license       = "MIT"
 
-[Deps]
-Requires: "nim >= 0.19.0"
+bin = @["tempfile_seeder"]
+
+# Dependencies
+
+requires "nim >= 0.19.0"
